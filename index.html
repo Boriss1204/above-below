@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Above // Below</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        :root {
+            --bg: #050608;
+            --bg-alt: #0b0d12;
+            --fg: #f5f5f5;
+            --muted: #8a8fa0;
+            --accent: #c0392b;
+            --accent-soft: rgba(192, 57, 43, 0.18);
+            --border: #262a36;
+            --error: #e74c3c;
+            --ok: #2ecc71;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #141824 0, #050608 60%);
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .frame {
+            width: 100%;
+            max-width: 540px;
+            background: linear-gradient(145deg, #070810, #0d1018);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            padding: 24px 22px;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.02),
+                0 26px 60px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .frame::before {
+            content: "ABOVE // BELOW";
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+            opacity: 0.5;
+        }
+
+        .step { display: none; animation: fadeIn 260ms ease-out; }
+        .step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-label {
+            font-size: 11px;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .step-title {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin: 0 0 12px;
+        }
+
+        .step-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .word-pill {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: center;
+            font-size: 13px;
+            background: #090b12;
+        }
+
+        .field-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .text-input {
+            width: 100%;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            padding: 10px 13px;
+            font-size: 14px;
+            background: #050609;
+            color: var(--fg);
+            outline: none;
+        }
+
+        .text-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent-soft);
+        }
+
+        .btn-row {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: #0b0d12;
+            color: var(--fg);
+            cursor: pointer;
+            transition: background 120ms ease, transform 80ms ease, border-color 120ms ease;
+        }
+
+        .btn-primary {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            background: #141724;
+        }
+
+        .btn-primary:hover {
+            background: rgba(192, 57, 43, 0.28);
+        }
+
+        .btn:active { transform: translateY(0); }
+
+        .arrow-grid {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .arrow-btn {
+            flex: 1;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #070810;
+            padding: 10px 0;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 120ms ease, transform 80ms ease, border-color 120ms ease;
+            color: var(--fg);
+        }
+
+        .arrow-btn:hover {
+            background: #151827;
+            transform: translateY(-1px);
+        }
+
+        .choice-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 16px;
+            margin-bottom: 10px;
+        }
+
+        .choice-btn {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #070810;
+            padding: 9px 13px;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            transition: background 120ms ease, transform 80ms ease, border-color 120ms ease;
+            color: var(--fg);
+        }
+
+        .choice-btn:hover {
+            background: #141724;
+            transform: translateY(-1px);
+        }
+
+        .cols-two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .col-box {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            font-size: 13px;
+            background: #070810;
+            line-height: 1.5;
+        }
+
+        .status {
+            font-size: 12px;
+            margin-top: 4px;
+            min-height: 16px;
+        }
+        .status.error { color: var(--error); }
+        .status.ok { color: var(--ok); }
+
+        .progress {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0.7;
+        }
+
+        .dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #1f2330;
+        }
+
+        .dot.active { background: var(--accent); }
+
+        .final-message {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .final-message strong { color: var(--fg); }
+
+        .final-tag {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.24em;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .final-tag span {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .final-tag span:hover { text-decoration: underline; }
+
+        .hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 10px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+<div class="frame">
+
+    <!-- STEP 1: ABOVE -->
+    <section id="step-above" class="step active">
+        <div class="step-label">Step 01</div>
+        <h1 class="step-title">ABOVE</h1>
+        <p class="step-body">
+            Everything looks intact from here.<br>
+            But what you see is only the surface.
+            <br><br>
+            Find the word that does not belong. Then descend.
+        </p>
+
+        <div class="field-label">Surface words</div>
+        <div class="word-grid">
+            <div class="word-pill">Light</div>
+            <div class="word-pill">Air</div>
+            <div class="word-pill">Quiet</div>
+            <div class="word-pill">Sink</div>
+        </div>
+
+        <form id="form-above">
+            <div class="field-label">Enter the misplaced word</div>
+            <input
+                type="text"
+                id="answer-above"
+                class="text-input"
+                autocomplete="off"
+                placeholder="type it here"
+            >
+            <div id="status-above" class="status"></div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Descend</button>
+            </div>
+        </form>
+
+        <div class="progress">
+            <span>ABOVE → BELOW</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 2: BETWEEN -->
+    <section id="step-between" class="step">
+        <div class="step-label">Step 02</div>
+        <h1 class="step-title">BETWEEN</h1>
+        <p class="step-body">
+            You have stepped below the surface.<br>
+            But you are not yet underneath.
+            <br><br>
+            Some things point upward. Some things fall.
+            <br>
+            Choose the direction that leads further down.
+        </p>
+
+        <div class="arrow-grid">
+            <button class="arrow-btn" data-dir="up" aria-label="Up arrow">⬆︎</button>
+            <button class="arrow-btn" data-dir="flat" aria-label="Flat line">—</button>
+            <button class="arrow-btn" data-dir="down" aria-label="Down arrow">⬇︎</button>
+        </div>
+        <div id="status-between" class="status"></div>
+
+        <div class="progress">
+            <span></span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 3: BELOW -->
+    <section id="step-below" class="step">
+        <div class="step-label">Step 03</div>
+        <h1 class="step-title">BELOW</h1>
+        <p class="step-body">
+            Down here, everything is stripped away.<br>
+            Noise disappears. Only one thing remains.
+            <br><br>
+            What survives decay?
+        </p>
+
+        <div class="choice-list">
+            <button class="choice-btn" data-choice="surface">The surface</button>
+            <button class="choice-btn" data-choice="echo">The echo</button>
+            <button class="choice-btn" data-choice="core"><strong>The core</strong></button>
+            <button class="choice-btn" data-choice="shadow">The shadow</button>
+        </div>
+        <div id="status-below" class="status"></div>
+
+        <div class="progress">
+            <span></span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 4: FINALE (END OF PUZZLE A) -->
+    <section id="step-finale" class="step">
+        <div class="step-label">Step 04</div>
+        <h1 class="step-title">THE CORE</h1>
+        <p class="final-message">
+            You reached the core.<br><br>
+            Most people stop at the surface.<br>
+            <strong>You didn't.</strong><br><br>
+            The path below remembers those who descend.
+        </p>
+
+        <div class="field-label">Reward</div>
+        <div class="word-pill" style="text-align:center; margin-top:8px;">
+            <strong>DESCENDER</strong>
+        </div>
+
+        <div class="final-tag">
+            <span id="secret-trigger">scavenger</span> // those who see below
+        </div>
+
+        <div class="hint">
+            (you think reward is just a word?.)
+        </div>
+
+        <div class="progress">
+            <span>END</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECRET PUZZLE B: MIRROR WORLD -->
+
+    <!-- B1: MIRROR ENTRY -->
+    <section id="step-mirror" class="step">
+        <div class="step-label">Secret Path · B1</div>
+        <h1 class="step-title">MIRROR</h1>
+        <p class="step-body">
+            You didn't just descend. You noticed.<br><br>
+            Above / Below: two worlds facing each other.<br><br>
+            What lets you see both at once?
+        </p>
+
+        <form id="form-mirror">
+            <div class="field-label">Answer</div>
+            <input
+                type="text"
+                id="answer-mirror"
+                class="text-input"
+                autocomplete="off"
+                placeholder="title"
+            >
+            <div id="status-mirror" class="status"></div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Reflect</button>
+            </div>
+        </form>
+
+        <div class="progress">
+            <span>ABOVE // BELOW</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- B2: MIRROR SPLIT -->
+    <section id="step-mirror-2" class="step">
+        <div class="step-label">Secret Path · B2</div>
+        <h1 class="step-title">SPLIT</h1>
+        <p class="step-body">
+            Two sides. One is the world. One is its reflection.<br><br>
+            Which side is real?
+        </p>
+
+        <div class="cols-two">
+            <div class="col-box">
+                north<br>
+                west<br>
+                east
+            </div>
+            <div class="col-box" style="text-align:right;">
+                htron<br>
+                tsew<br>
+                tsae
+            </div>
+        </div>
+
+        <div class="choice-list">
+            <button class="choice-btn mirror2-btn" data-side="left">
+                ◀ left column is real
+            </button>
+            <button class="choice-btn mirror2-btn" data-side="right">
+                right column is real ▶
+            </button>
+        </div>
+
+        <div id="status-mirror-2" class="status"></div>
+
+        <div class="progress">
+            <span>pick a side</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- B3: SEMANTIC MIRROR -->
+    <section id="step-mirror-3" class="step">
+        <div class="step-label">Secret Path · B3</div>
+        <h1 class="step-title">OPPOSITES</h1>
+        <p class="step-body">
+            Not every word has a clean opposite.<br><br>
+            Choose the one that stands alone.
+        </p>
+
+        <div class="choice-list">
+            <button class="choice-btn mirror3-btn" data-word="light">light</button>
+            <button class="choice-btn mirror3-btn" data-word="dark">dark</button>
+            <button class="choice-btn mirror3-btn" data-word="open">open</button>
+            <button class="choice-btn mirror3-btn" data-word="echo"><strong>echo</strong></button>
+        </div>
+
+        <div id="status-mirror-3" class="status"></div>
+
+        <div class="progress">
+            <span>one doesn't mirror</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- B4: INVERTED CORE (FINALE B) -->
+    <section id="step-mirror-finale" class="step">
+        <div class="step-label">Secret Path · B4</div>
+        <h1 class="step-title">INVERT</h1>
+        <p class="step-body">
+            A mirror doesn't change the letters.<br>
+            It changes how you read them.
+            <br><br>
+            Read this the way a mirror would:
+        </p>
+
+        <div class="word-pill" style="font-size:20px; margin-bottom:10px;">
+            ƎЯOƆ
+        </div>
+
+        <form id="form-core">
+            <div class="field-label">type it (lowercase EN)</div>
+            <input
+                type="text"
+                id="answer-core"
+                class="text-input"
+                autocomplete="off"
+                placeholder="..."
+            >
+            <div id="status-core" class="status"></div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Descend further</button>
+            </div>
+        </form>
+
+        <div class="progress">
+            <span>boris</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- B-FINAL: TWO WORLDS -->
+    <section id="step-mirror-end" class="step">
+        <div class="step-label">Secret Clear</div>
+        <h1 class="step-title">TWO WORLDS</h1>
+        <p class="final-message">
+            You crossed depth and reflection.
+            <br><br>
+            Few descend.<br>
+            Fewer reflect.<br>
+            <strong>You did both.</strong>
+        </p>
+
+        <div class="field-label">Reward</div>
+        <div class="word-pill" style="text-align:center; margin-top:8px;">
+            <strong>MIRRORWALKER</strong>
+        </div>
+
+        <div class="final-tag">
+            ABOVE // <span id="scavenger-trigger">BELOW</span> // BETWEEN
+        </div>
+
+        <div class="progress">
+            <span>SECRET END</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- PUZZLE C: SCAVENGER HUNT -->
+
+    <!-- C1: ENTRY -->
+    <section id="step-scavenger-1" class="step">
+        <div class="step-label">Secret Path · C1</div>
+        <h1 class="step-title">SCAVENGER</h1>
+        <p class="step-body">
+            You stayed after the reflection.<br><br>
+            A scavenger gathers what's left behind.
+            <br><br>
+            From everything you've seen so far:<br>
+            • one word that falls<br>
+            • one word that reflects<br>
+            • one word that survives decay
+            <br><br>
+            Collect them. Put them in order.
+        </p>
+
+        <form id="form-scavenger">
+            <div class="field-label">three words, separated by spaces</div>
+            <input
+                type="text"
+                id="answer-scavenger"
+                class="text-input"
+                autocomplete="off"
+                placeholder="3 answer from before   "
+            >
+            <div id="status-scavenger" class="status"></div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Assemble</button>
+            </div>
+        </form>
+
+        <div class="progress">
+            <span>gather fragments</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- C-FINAL: SCAVENGER END -->
+    <section id="step-scavenger-end" class="step">
+        <div class="step-label">Scavenger Clear</div>
+        <h1 class="step-title">RUINS</h1>
+        <p class="final-message">
+            You didn't just descend or reflect.<br>
+            You collected what remained.
+            <br><br>
+            Depth. Reflection. Debris.<br>
+            <strong>Scavenger.</strong>
+        </p>
+
+        <div class="field-label">Title earned</div>
+        <div class="word-pill" style="text-align:center; margin-top:8px;">
+            <strong>RUINWALKER</strong>
+        </div>
+
+        <div class="final-tag">
+            DESCENDER // MIRRORWALKER // <span>RUINWALKER</span>
+        </div>
+
+        <div class="btn-row" style="justify-content:flex-start; margin-top:18px;">
+            <button type="button" class="btn btn-primary" id="final-gate-btn">
+                Open final gate
+            </button>
+        </div>
+
+        <div class="progress">
+            <span>SCAVENGER END</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL GATE: COMBINED KEY -->
+    <section id="step-final-key" class="step">
+        <div class="step-label">Final Gate</div>
+        <h1 class="step-title">THREE NAMES</h1>
+        <p class="step-body">
+            You earned three titles along the way.<br><br>
+            Put them together as a single key.<br>
+            Then the last door opens.
+        </p>
+
+        <form id="form-final-key">
+            <div class="field-label">final key (three words)</div>
+            <input
+                type="text"
+                id="answer-final-key"
+                class="text-input"
+                autocomplete="off"
+                placeholder="..."
+            >
+            <div id="status-final-key" class="status"></div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">Unlock</button>
+            </div>
+        </form>
+
+        <div class="hint">
+            (order matters.)
+        </div>
+
+        <div class="progress">
+            <span>last door</span>
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    function showStep(id) {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.toggle('active', step.id === id);
+        });
+    }
+
+    // STEP 1: ABOVE
+    const formAbove = document.getElementById('form-above');
+    const inputAbove = document.getElementById('answer-above');
+    const statusAbove = document.getElementById('status-above');
+
+    formAbove.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const value = (inputAbove.value || "").trim().toLowerCase();
+
+        if (!value) {
+            statusAbove.textContent = "Type the word you think does not belong.";
+            statusAbove.className = "status error";
+            return;
+        }
+
+        if (value === "sink") {
+            statusAbove.textContent = "";
+            showStep('step-between');
+        } else {
+            statusAbove.textContent = "Not quite. Look again at what belongs above.";
+            statusAbove.className = "status error";
+        }
+    });
+
+    // STEP 2: BETWEEN
+    const statusBetween = document.getElementById('status-between');
+    document.querySelectorAll('.arrow-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dir = btn.getAttribute('data-dir');
+            if (dir === 'down') {
+                statusBetween.textContent = "";
+                showStep('step-below');
+            } else {
+                statusBetween.textContent = "That direction doesn't take you any deeper.";
+                statusBetween.className = "status error";
+            }
+        });
+    });
+
+    // STEP 3: BELOW
+    const statusBelow = document.getElementById('status-below');
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        if (!btn.classList.contains('mirror2-btn') && !btn.classList.contains('mirror3-btn')) {
+            btn.addEventListener('click', () => {
+                const choice = btn.getAttribute('data-choice');
+                if (choice === 'core') {
+                    statusBelow.textContent = "";
+                    showStep('step-finale');
+                } else {
+                    statusBelow.textContent = "It fades. Only one thing truly survives.";
+                    statusBelow.className = "status error";
+                }
+            });
+        }
+    });
+
+    // SECRET TRIGGER → PUZZLE B (from "scavenger" in A finale)
+    const secretTrigger = document.getElementById('secret-trigger');
+    secretTrigger.addEventListener('click', () => {
+        showStep('step-mirror');
+    });
+
+    // PUZZLE B1: MIRROR
+    const formMirror = document.getElementById('form-mirror');
+    const inputMirror = document.getElementById('answer-mirror');
+    const statusMirror = document.getElementById('status-mirror');
+
+    formMirror.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const value = (inputMirror.value || "").trim().toLowerCase();
+
+        if (!value) {
+            statusMirror.textContent = "Name the thing that shows both worlds. (e.g. mirror)";
+            statusMirror.className = "status error";
+            return;
+        }
+
+        if (value === "mirror") {
+            statusMirror.textContent = "";
+            showStep('step-mirror-2');
+        } else {
+            statusMirror.textContent = "Close your eyes and think: how do you see both at once?";
+            statusMirror.className = "status error";
+        }
+    });
+
+    // PUZZLE B2: SPLIT
+    const statusMirror2 = document.getElementById('status-mirror-2');
+    document.querySelectorAll('.mirror2-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const side = btn.getAttribute('data-side');
+            if (side === 'left') {
+                statusMirror2.textContent = "";
+                showStep('step-mirror-3');
+            } else {
+                statusMirror2.textContent = "That's the reflection. The world is on the other side.";
+                statusMirror2.className = "status error";
+            }
+        });
+    });
+
+    // PUZZLE B3: OPPOSITES
+    const statusMirror3 = document.getElementById('status-mirror-3');
+    document.querySelectorAll('.mirror3-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const word = btn.getAttribute('data-word');
+            if (word === 'echo') {
+                statusMirror3.textContent = "";
+                showStep('step-mirror-finale');
+            } else {
+                statusMirror3.textContent = "That one still has a clear opposite. One word doesn’t.";
+                statusMirror3.className = "status error";
+            }
+        });
+    });
+
+    // PUZZLE B4: INVERTED CORE
+    const formCore = document.getElementById('form-core');
+    const inputCore = document.getElementById('answer-core');
+    const statusCore = document.getElementById('status-core');
+
+    formCore.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const value = (inputCore.value || "").trim().toLowerCase();
+
+        if (!value) {
+            statusCore.textContent = "Read it as if the letters are reflected.";
+            statusCore.className = "status error";
+            return;
+        }
+
+        if (value === "core") {
+            statusCore.textContent = "";
+            showStep('step-mirror-end');
+        } else {
+            statusCore.textContent = "Try again. You've seen this word before.";
+            statusCore.className = "status error";
+        }
+    });
+
+    // SECRET TRIGGER → PUZZLE C (from "BELOW" in TWO WORLDS)
+    const scavengerTrigger = document.getElementById('scavenger-trigger');
+    scavengerTrigger.addEventListener('click', () => {
+        showStep('step-scavenger-1');
+    });
+
+    // PUZZLE C: SCAVENGER
+    const formScavenger = document.getElementById('form-scavenger');
+    const inputScavenger = document.getElementById('answer-scavenger');
+    const statusScavenger = document.getElementById('status-scavenger');
+
+    formScavenger.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const raw = (inputScavenger.value || "").trim().toLowerCase();
+        if (!raw) {
+            statusScavenger.textContent = "Collect the three words first.";
+            statusScavenger.className = "status error";
+            return;
+        }
+
+        const parts = raw.split(/\s+/).filter(Boolean);
+        if (parts.length !== 3) {
+            statusScavenger.textContent = "You need exactly three words.";
+            statusScavenger.className = "status error";
+            return;
+        }
+
+        const [w1, w2, w3] = parts;
+
+        if (w1 === "sink" && w2 === "mirror" && w3 === "core") {
+            statusScavenger.textContent = "";
+            showStep('step-scavenger-end');
+        } else {
+            statusScavenger.textContent = "They don't fit. Think: fall, reflect, survive.";
+            statusScavenger.className = "status error";
+        }
+    });
+
+    // BUTTON → FINAL GATE
+    const finalGateBtn = document.getElementById('final-gate-btn');
+    finalGateBtn.addEventListener('click', () => {
+        showStep('step-final-key');
+    });
+
+    // FINAL GATE: COMBINED KEY
+    const formFinalKey = document.getElementById('form-final-key');
+    const inputFinalKey = document.getElementById('answer-final-key');
+    const statusFinalKey = document.getElementById('status-final-key');
+
+    formFinalKey.addEventListener('submit', function (e) {
+        e.preventDefault();
+        let raw = (inputFinalKey.value || "").trim().toLowerCase();
+        raw = raw.replace(/\s+/g, " ");
+
+        if (!raw) {
+            statusFinalKey.textContent = "Type the three names you earned.";
+            statusFinalKey.className = "status error";
+            return;
+        }
+
+        if (raw === "descender mirrorwalker ruinwalker") {
+            statusFinalKey.textContent = "";
+            // redirect to your final reward page
+            window.location.href = "reward.html";
+        } else {
+            statusFinalKey.textContent = "Wrong key. Order matters.";
+            statusFinalKey.className = "status error";
+        }
+    });
+</script>
+</body>
+</html>
