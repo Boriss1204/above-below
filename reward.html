@@ -245,7 +245,22 @@
             
         </div>
     </div>
+<div id="secret-sound"
+     style="cursor:pointer; margin-top:18px; opacity:0.75; text-align:left; font-size:13px; letter-spacing:0.12em;">
+    listen closely
+</div>
 
+<audio id="soundtrack">
+    <source src="reward.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+document.getElementById('secret-sound').addEventListener('click', () => {
+    const audio = document.getElementById('soundtrack');
+    audio.volume = 0.9;   // ลดหรือเพิ่มได้
+    audio.play();
+});
+</script>
     <div class="btn-row">
         <a href="index.html" class="btn">
             ← back to the labyrinth
